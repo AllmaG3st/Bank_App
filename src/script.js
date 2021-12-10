@@ -105,6 +105,19 @@ const caclPrintBalace = (movements) => {
 
 caclPrintBalace(account1.movements);
 
+// Calculate Summary
+
+const calcDisplaySummary = (movements) => {
+  const incomes = movements.filter(el => el > 0).reduce((acc, el) => acc + el);
+  labelSumIn.textContent = `${incomes}€`;
+  const out = movements.filter(el => el < 0).reduce((acc, el) => acc + el);
+  labelSumOut.textContent = `${Math.abs(out)}€`
+  const interest = movements.filter(el => el > 0).filter(e => e * .012 > 1).reduce((acc, el) => acc + el * .012, 0)
+  labelSumInterest.textContent = `${interest}€`;
+}
+
+calcDisplaySummary(account1.movements);
+
 
 
 
