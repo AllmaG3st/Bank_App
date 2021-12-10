@@ -82,7 +82,6 @@ const displayMovements = (movements) => {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   })
 }
-displayMovements(account1.movements);
 
 // Create UserNames for Users
 const createUserName = (accs) => {
@@ -98,25 +97,59 @@ createUserName(accounts);
 
 // Calculate account balance
 
-const caclPrintBalace = (movements) => {
+const calcPrintBalance = (movements) => {
   const balance = movements.reduce((acc, el) => acc + el);
   labelBalance.textContent = balance;
 };
 
-caclPrintBalace(account1.movements);
 
 // Calculate Summary
 
-const calcDisplaySummary = (movements) => {
-  const incomes = movements.filter(el => el > 0).reduce((acc, el) => acc + el);
+const calcDisplaySummary = (acc) => {
+  const incomes = acc.movements.filter(el => el > 0).reduce((acc, el) => acc + el);
   labelSumIn.textContent = `${incomes}€`;
-  const out = movements.filter(el => el < 0).reduce((acc, el) => acc + el);
+
+  const out = acc.movements.filter(el => el < 0).reduce((acc, el) => acc + el);
   labelSumOut.textContent = `${Math.abs(out)}€`
-  const interest = movements.filter(el => el > 0).filter(e => e * .012 > 1).reduce((acc, el) => acc + el * .012, 0)
+
+  const interest = acc.movements.filter(el => el > 0).filter(e => e * acc.interestRate > 1).reduce((sum, el) => sum + el * acc.interestRate, 0)
   labelSumInterest.textContent = `${interest}€`;
 }
 
-calcDisplaySummary(account1.movements);
+// Login
+
+// Event handler
+let currentAccount;
+
+
+btnLogin.addEventListener('click', (e) => {
+  e.preventDefault();
+  currentAccount = accounts.find(acc => acc.userName === inputLoginUsername.value);
+  if (currentAccount?.pin === +inputLoginPin.value) {
+    //Display UI 
+    containerApp.style.opacity = 100;
+    labelWelcome.textContent = `Welcome Back, ${currentAccount.owner.split(' ')[0]}`;
+    //Display movements
+    displayMovements(currentAccount.movements);
+
+    //Display balance
+    calcPrintBalance(currentAccount.movements);
+
+    //Display summary
+    calcDisplaySummary(currentAccount);
+  } else {
+    labelWelcome.textContent = `Password or username are not correct`;
+    labelWelcome.style.color = 'red';
+  }
+
+  //Clear Fields 
+  inputLoginUsername.value = inputLoginPin.value = '';
+
+  //Remove Focus
+  inputLoginPin.blur();
+})
+
+
 
 
 
