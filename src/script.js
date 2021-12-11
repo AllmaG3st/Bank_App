@@ -65,11 +65,13 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 // Display Transactions
 
-const displayMovements = (movements) => {
+const displayMovements = (movements, sort = false) => {
 
-  containerMovements.innerHTML = ''
+  containerMovements.innerHTML = '';
 
-  movements.forEach((mov, i) => {
+  const movs = sort ? [...movements].sort((a, b) => a - b) : movements;
+
+  movs.forEach((mov, i) => {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     const html = `
@@ -163,7 +165,7 @@ btnTransfer.addEventListener('click', (e) => {
 
   //Checking Transfer validity
   if (amount > 0 && currentAccount.balance >= amount && receiverAccount && receiverAccount?.userName !== currentAccount.userName) {
-    document.querySelector('.error')?.remove(error);
+    document.querySelector('.error')?.remove();
     //Transfer itself
     console.log('valid');
     currentAccount.movements.push(-amount);
@@ -181,16 +183,16 @@ btnTransfer.addEventListener('click', (e) => {
 
 btnClose.addEventListener('click', (e) => {
 
+  e.preventDefault();
+
   const div = document.querySelector('.operation--close');
   const error = `
       <div class='error' style="color:yellow" >Password or username are not correct</div>
     `;
 
-  e.preventDefault();
-
   //Check if credentials are correct
   if (currentAccount.userName === inputCloseUsername.value && currentAccount.pin === +inputClosePin.value) {
-    document.querySelector('.error')?.remove(error);
+    document.querySelector('.error')?.remove();
     const index = accounts.find(acc => acc.userName === currentAccount.userName);
     //HideUI 
     containerApp.style.opacity = 0;
@@ -203,4 +205,39 @@ btnClose.addEventListener('click', (e) => {
   }
 
   inputCloseUsername.value = inputClosePin.value = '';
+})
+
+
+//! Request Loan
+
+btnLoan.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  const div = document.querySelector('.operation--loan');
+  const error = `
+      <div class='error' style="color:red" >Bank can't provide this loan</div>
+    `;
+
+  const amount = +inputLoanAmount.value;
+
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * .1)) {
+    //Add loan
+    document.querySelector('.error')?.remove();
+    currentAccount.movements.push(amount);
+    updateUI(currentAccount);
+  } else {
+    //Add error
+    div.insertAdjacentHTML('afterbegin', error);
+  }
+
+  inputLoanAmount.value = '';
+});
+
+//! Sorting
+
+let sorted = false;
+btnSort.addEventListener('click', (e) => {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
 })
