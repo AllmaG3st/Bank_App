@@ -156,7 +156,7 @@ btnTransfer.addEventListener('click', (e) => {
 
   const amount = +inputTransferAmount.value;
   const receiverAccount = accounts.find(acc => acc.userName === inputTransferTo.value);
-  const div = document.querySelector('.operation');
+  const div = document.querySelector('.operation--transfer');
   const error = `
       <div class='error' style="color:red" >Wrong user or amount</div>
     `
@@ -175,4 +175,32 @@ btnTransfer.addEventListener('click', (e) => {
 
   inputTransferAmount.value = inputTransferTo.value = '';
 
+})
+
+//! Delete The account
+
+btnClose.addEventListener('click', (e) => {
+
+  const div = document.querySelector('.operation--close');
+  const error = `
+      <div class='error' style="color:yellow" >Password or username are not correct</div>
+    `;
+
+  e.preventDefault();
+
+  //Check if credentials are correct
+  if (currentAccount.userName === inputCloseUsername.value && currentAccount.pin === +inputClosePin.value) {
+    document.querySelector('.error')?.remove(error);
+    const index = accounts.find(acc => acc.userName === currentAccount.userName);
+    //HideUI 
+    containerApp.style.opacity = 0;
+    //Delete The account
+    accounts.splice(index, 1);
+    //Show message
+    labelWelcome.textContent = `Hope to see you again, ${currentAccount.owner.split(' ')[0]}`;
+  } else {
+    div.insertAdjacentHTML('afterbegin', error)
+  }
+
+  inputCloseUsername.value = inputClosePin.value = '';
 })
