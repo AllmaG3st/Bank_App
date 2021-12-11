@@ -97,11 +97,10 @@ createUserName(accounts);
 
 // Calculate account balance
 
-const calcPrintBalance = (movements) => {
-  const balance = movements.reduce((acc, el) => acc + el);
-  labelBalance.textContent = balance;
+const calcPrintBalance = (acc) => {
+  acc.balance = acc.movements.reduce((acc, el) => acc + el);
+  labelBalance.textContent = `${acc.balance}`;
 };
-
 
 // Calculate Summary
 
@@ -112,15 +111,24 @@ const calcDisplaySummary = (acc) => {
   const out = acc.movements.filter(el => el < 0).reduce((acc, el) => acc + el);
   labelSumOut.textContent = `${Math.abs(out)}€`
 
-  const interest = acc.movements.filter(el => el > 0).filter(e => e * acc.interestRate > 1).reduce((sum, el) => sum + el * acc.interestRate, 0)
+  const interest = acc.movements.filter(el => el > 0).filter(e => e * acc.interestRate > 1).reduce((sum, el) => sum + el * acc.interestRate / 100, 0)
   labelSumInterest.textContent = `${interest}€`;
 }
 
-// Login
+const updateUI = (acc) => {
+  //Display movements
+  displayMovements(acc.movements);
 
-// Event handler
+  //Display balance
+  calcPrintBalance(acc);
+
+  //Display summary
+  calcDisplaySummary(acc);
+}
+
+//! Login
+
 let currentAccount;
-
 
 btnLogin.addEventListener('click', (e) => {
   e.preventDefault();
@@ -129,28 +137,42 @@ btnLogin.addEventListener('click', (e) => {
     //Display UI 
     containerApp.style.opacity = 100;
     labelWelcome.textContent = `Welcome Back, ${currentAccount.owner.split(' ')[0]}`;
-    //Display movements
-    displayMovements(currentAccount.movements);
-
-    //Display balance
-    calcPrintBalance(currentAccount.movements);
-
-    //Display summary
-    calcDisplaySummary(currentAccount);
+    labelWelcome.style.color = '#444';
+    updateUI(currentAccount);
   } else {
     labelWelcome.textContent = `Password or username are not correct`;
     labelWelcome.style.color = 'red';
   }
 
-  //Clear Fields 
   inputLoginUsername.value = inputLoginPin.value = '';
 
-  //Remove Focus
   inputLoginPin.blur();
+});
+
+//! Transfer
+
+btnTransfer.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  const amount = +inputTransferAmount.value;
+  const receiverAccount = accounts.find(acc => acc.userName === inputTransferTo.value);
+  const div = document.querySelector('.operation');
+  const error = `
+      <div class='error' style="color:red" >Wrong user or amount</div>
+    `
+
+  //Checking Transfer validity
+  if (amount > 0 && currentAccount.balance >= amount && receiverAccount && receiverAccount?.userName !== currentAccount.userName) {
+    document.querySelector('.error')?.remove(error);
+    //Transfer itself
+    console.log('valid');
+    currentAccount.movements.push(-amount);
+    receiverAccount.movements.push(amount);
+    updateUI(currentAccount);
+  } else {
+    div.insertAdjacentHTML('afterbegin', error)
+  }
+
+  inputTransferAmount.value = inputTransferTo.value = '';
+
 })
-
-
-
-
-
-
