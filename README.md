@@ -1,5 +1,8 @@
 # Bank_App
 
+Link to Github Pages:
+https://allmag3st.github.io/Bank_App/
+
 Login Info:
 
 Account1 {
