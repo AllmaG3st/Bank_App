@@ -78,6 +78,32 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 // const local = navigator.language;
 
+
+//Log out Timer 
+
+
+const startLogOutTimer = () => {
+  let time = 300;
+
+  const tick = () => {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    labelTimer.textContent = `${min}:${sec}`;
+
+    if (time === 0) {
+      clearInterval(logOutTimer);
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent = `Login to get Started`;
+    }
+
+    time--;
+  }
+  tick();
+  const logOutTimer = setInterval(tick, 1000);
+  return logOutTimer;
+}
+
 //Format Numbers 
 
 const formatNumbers = (currency, locale, value) => {
@@ -186,7 +212,7 @@ const updateUI = (acc) => {
 
 //! Login
 
-let currentAccount;
+let currentAccount, logOutTimer;
 
 //FAKE ALWAYS LOGGED IN
 // currentAccount = account1;
@@ -202,6 +228,12 @@ btnLogin.addEventListener('click', (e) => {
     containerApp.style.opacity = 100;
     labelWelcome.textContent = `Welcome Back, ${currentAccount.owner.split(' ')[0]}`;
     labelWelcome.style.color = '#444';
+
+    //Set Timer
+
+    logOutTimer ? clearInterval(logOutTimer) : null;
+    logOutTimer = startLogOutTimer();
+
     updateUI(currentAccount);
 
     //Current Date
@@ -256,6 +288,10 @@ btnTransfer.addEventListener('click', (e) => {
   } else {
     div.insertAdjacentHTML('afterbegin', error)
   }
+
+  //Reset Timer
+  clearInterval(logOutTimer);
+  logOutTimer = startLogOutTimer();
 
   inputTransferAmount.value = inputTransferTo.value = '';
 
@@ -327,6 +363,10 @@ btnLoan.addEventListener('click', (e) => {
       div.insertAdjacentHTML('afterbegin', error);
     }, 2500)
   }
+
+  //Reset Timer
+  clearInterval(logOutTimer);
+  logOutTimer = startLogOutTimer();
 
   inputLoanAmount.value = '';
 });
