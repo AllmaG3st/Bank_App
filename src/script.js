@@ -269,7 +269,7 @@ btnClose.addEventListener('click', (e) => {
 
   const div = document.querySelector('.operation--close');
   const error = `
-      <div class='error' style="color:yellow" >Password or username are not correct</div>
+      <div class='error' style="color:yellow; font-size: 1.5em" >Password or username are not correct</div>
     `;
 
   //Check if credentials are correct
@@ -297,25 +297,35 @@ btnLoan.addEventListener('click', (e) => {
 
   const div = document.querySelector('.operation--loan');
   const error = `
-      <div class='error' style="color:red" >Bank can't provide this loan</div>
+      <div class='error' style="color:red; font-size: 1.5em" >Bank can't provide this loan</div>
     `;
+  const waitingForApproval = `<div class='waiting-for-approval' style="color:yellow; font-size: 1.5em" >Waiting For Approval</div>`
 
   const amount = Math.floor(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * .1)) {
-    //Add loan
+
     document.querySelector('.error')?.remove();
-    currentAccount.movements.push(amount);
+    div.insertAdjacentHTML('afterbegin', waitingForApproval);
 
-    //Add date
-    currentAccount.movementsDates.push(new Date().toISOString());
+    setTimeout(() => {
+      //Add loan
+      currentAccount.movements.push(amount);
 
-    updateUI(currentAccount);
+      //Add date
+      currentAccount.movementsDates.push(new Date().toISOString());
+      document.querySelector('.waiting-for-approval')?.remove();
+      updateUI(currentAccount);
 
-    //Create date
+    }, 2500)
   } else {
+    div.insertAdjacentHTML('afterbegin', waitingForApproval);
+
     //Add error
-    div.insertAdjacentHTML('afterbegin', error);
+    setTimeout(() => {
+      document.querySelector('.waiting-for-approval')?.remove();
+      div.insertAdjacentHTML('afterbegin', error);
+    }, 2500)
   }
 
   inputLoanAmount.value = '';
